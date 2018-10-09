@@ -1,0 +1,7 @@
+#!/bin/bash
+
+docker-compose build
+docker-compose run --rm web mix ecto.migrate
+docker-compose run --rm web mix deps.get
+docker-compose run --rm web npm install --prefix assets
+docker-compose up

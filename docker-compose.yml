@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  nginx:
+    container_name: nginx
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  db:
+    container_name: postgresql
+    image: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      - nginx
+
+  web:
+    container_name: graphql-demo.web
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: mix phx.server
+    volumes:
+      - ".:/graphql-demo"
+    ports:
+      - "4000:4000"
+    environment:
+      - VIRTUAL_HOST=graphql-demo.test
+    depends_on:
+      - nginx
+      - db
+
+volumes:
+  ? postgres-data
